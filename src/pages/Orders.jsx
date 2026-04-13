@@ -127,7 +127,7 @@ export default function Orders() {
                         <div className="flex flex-col items-end w-full md:w-auto">
                           <div className="font-nunito text-primary flex items-center gap-3 mb-4">
                             <span className="text-sm">Thành tiền:</span>
-                            <span className="font-montserrat font-bold text-2xl text-accent-1">{order.total.toLocaleString('vi-VN')}₫</span>
+                            <span className="font-montserrat font-bold text-2xl text-accent-1">{(order.total || order.totalPrice || 0).toLocaleString('vi-VN')}₫</span>
                           </div>
                           
                           <div className="flex gap-3 w-full md:w-auto">

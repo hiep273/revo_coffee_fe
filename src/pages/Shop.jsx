@@ -1,27 +1,29 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-// Giả lập dữ liệu sản phẩm mới theo yêu cầu kiến trúc e-commerce
-import image1 from '../assets/img/section2/image1.png';
-import image2 from '../assets/img/section2/image2.png';
-import image3 from '../assets/img/section2/image3.png';
-import image4 from '../assets/img/section2/image4.png';
-import image5 from '../assets/img/section2/image5.png';
-
-const allProducts = [
-  { id: 1, name: 'REVO Morning', price: 99000, image: image1, type: 'arabica', region: 'dalat', process: 'washed', roast: 'light' },
-  { id: 2, name: 'REVO Everyday', price: 139000, image: image2, type: 'blend', region: 'daklak', process: 'honey', roast: 'medium' },
-  { id: 3, name: 'REVO Origin', price: 149000, image: image3, type: 'robusta', region: 'daklak', process: 'natural', roast: 'dark' },
-  { id: 4, name: 'REVO Đậm Đà', price: 129000, image: image4, type: 'fine-robusta', region: 'gialai', process: 'honey', roast: 'dark' },
-  { id: 5, name: 'REVO Robusta', price: 109000, image: image5, type: 'robusta', region: 'daklak', process: 'natural', roast: 'dark' },
-];
+import { products } from '../data/products';
 
 export default function Shop() {
   const [filterType, setFilterType] = useState('all');
+  const [selectedRegions, setSelectedRegions] = useState([]);
+  const [appliedFilterType, setAppliedFilterType] = useState('all');
+  const [appliedRegions, setAppliedRegions] = useState([]);
   
-  const filteredProducts = filterType === 'all' 
-    ? allProducts 
-    : allProducts.filter(p => p.type === filterType);
+  const toggleRegion = (region) => {
+    setSelectedRegions((prev) =>
+      prev.includes(region) ? prev.filter((r) => r !== region) : [...prev, region]
+    );
+  };
+
+  const applyFilters = () => {
+    setAppliedFilterType(filterType);
+    setAppliedRegions(selectedRegions);
+  };
+
+  const filteredProducts = products.filter((product) => {
+    const typeMatch = appliedFilterType === 'all' || product.type === appliedFilterType;
+    const regionMatch = appliedRegions.length === 0 || appliedRegions.includes(product.region);
+    return typeMatch && regionMatch;
+  });
 
   return (
     <div className="bg-pinky-gray min-h-screen py-12">
@@ -57,13 +59,41 @@ export default function Shop() {
             <div className="mb-6">
               <h3 className="font-montserrat font-bold text-primary mb-3">Vùng trồng</h3>
               <div className="space-y-2 font-nunito text-primary/80">
-                <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" className="accent-accent-1 rounded" /> Đà Lạt</label>
-                <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" className="accent-accent-1 rounded" /> Đắk Lắk</label>
-                <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" className="accent-accent-1 rounded" /> Cầu Đất</label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="accent-accent-1 rounded"
+                    checked={selectedRegions.includes('dalat')}
+                    onChange={() => toggleRegion('dalat')}
+                  />
+                  Đà Lạt
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="accent-accent-1 rounded"
+                    checked={selectedRegions.includes('daklak')}
+                    onChange={() => toggleRegion('daklak')}
+                  />
+                  Đắk Lắk
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="accent-accent-1 rounded"
+                    checked={selectedRegions.includes('gialai')}
+                    onChange={() => toggleRegion('gialai')}
+                  />
+                  Gia Lai
+                </label>
               </div>
             </div>
 
-            <button className="w-full bg-primary text-white font-nunito font-bold py-2 rounded-full hover:bg-accent-1 transition-colors">
+            <button
+              type="button"
+              onClick={applyFilters}
+              className="w-full bg-primary text-white font-nunito font-bold py-2 rounded-full hover:bg-accent-1 transition-colors"
+            >
               ÁP DỤNG LỌC
             </button>
           </div>

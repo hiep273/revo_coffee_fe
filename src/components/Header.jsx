@@ -1,26 +1,63 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import useStore from '../store/useStore';
 import logo from '../assets/img/header/logo.svg';
 import cartIcon from '../assets/img/header/cart-icon.svg';
 import headerBg from '../assets/img/header/header-half-bg.png';
 
 export default function Header() {
+  const location = useLocation();
+  const isHome = location.pathname === '/';
   const cart = useStore((state) => state.cart);
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  if (!isHome) {
+    return (
+      <header className="sticky top-0 z-20 w-full bg-accent-2 border-b border-gray-100">
+        <nav className="w-full flex items-center justify-between px-6 md:px-12 py-4">
+          <div className="flex items-center gap-10">
+            <Link to="/" className="transition-colors hover:text-accent-1">
+              <img src={logo} alt="Revo Coffee Logo" className="h-9 md:h-10 cursor-pointer" />
+            </Link>
+            <ul className="hidden lg:flex items-center gap-8 font-nunito font-bold text-primary uppercase tracking-widest text-xs">
+              <li><Link to="/" className="transition-colors hover:text-accent-1">Trang chủ</Link></li>
+              <li><Link to="/shop" className="transition-colors hover:text-accent-1">Sản phẩm</Link></li>
+              <li><Link to="/subscription" className="transition-colors hover:text-accent-1">Subscription</Link></li>
+            </ul>
+          </div>
+          <div className="flex items-center gap-6">
+            <Link to="/orders" className="hidden md:flex items-center gap-2 hover:opacity-75 transition-opacity font-nunito font-bold text-primary uppercase text-sm">
+              Đơn hàng của tôi
+            </Link>
+            <Link to="/cart" className="flex items-center gap-2 hover:opacity-75 transition-opacity">
+              <span className="hidden md:inline-block font-nunito font-bold text-primary uppercase text-sm mr-2">
+                Giỏ hàng
+              </span>
+              <div className="bg-primary rounded-full p-2 flex items-center justify-center relative">
+                <img src={cartIcon} alt="Cart" className="h-5 w-5 brightness-0 invert" />
+                <span className="absolute -top-1 -right-1 bg-red-custom text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                  {totalItems}
+                </span>
+              </div>
+            </Link>
+          </div>
+        </nav>
+      </header>
+    );
+  }
 
   return (
     <header className="relative w-full min-h-screen bg-accent-2 overflow-hidden">
       {/* Navigation */}
       <nav className="absolute top-0 left-0 w-full flex items-center justify-between px-6 md:px-12 py-6 z-20">
         <div className="flex items-center gap-16">
-          <Link to="/">
+          <Link to="/" className="transition-colors hover:text-accent-1">
             <img src={logo} alt="Revo Coffee Logo" className="h-10 md:h-12 cursor-pointer" />
           </Link>
-          <ul className="hidden lg:flex items-center gap-10 font-nunito font-bold text-primary uppercase tracking-widest text-sm hover:[&>li>a]:text-accent-1 [&>li>a]:transition-colors">
-            <li><Link to="/">Trang chủ</Link></li>
-            <li><Link to="/shop">Sản phẩm</Link></li>
-            <li><Link to="/subscription">Subscription</Link></li>
+          <ul className="hidden lg:flex items-center gap-10 font-nunito font-bold text-primary uppercase tracking-widest text-sm">
+            <li><Link to="/" className="transition-colors hover:text-accent-1">Trang chủ</Link></li>
+            <li><Link to="/shop" className="transition-colors hover:text-accent-1">Sản phẩm</Link></li>
+            <li><Link to="/subscription" className="transition-colors hover:text-accent-1">Subscription</Link></li>
           </ul>
         </div>
         <div className="flex items-center gap-6">
@@ -80,3 +117,4 @@ export default function Header() {
     </header>
   );
 }
+

@@ -8,7 +8,7 @@ export default function Dashboard() {
   // Calculate mock stats based on global store where possible
   const totalRevenue = orders.reduce((acc, order) => {
     if(order.status === 'completed' || order.status === 'shipping' || (order.paymentMethod === 'vnpay' && order.status !== 'cancelled')) {
-      return acc + order.total;
+      return acc + (order.total ?? order.totalPrice ?? 0);
     }
     return acc;
   }, 0);
@@ -84,7 +84,7 @@ export default function Dashboard() {
                   <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                     <td className="py-4 font-bold text-primary">{order.id}</td>
                     <td className="py-4 truncate max-w-[150px]">{order.shippingInfo?.name || 'Guest'}</td>
-                    <td className="py-4 font-bold text-right text-accent-1">{order.total.toLocaleString('vi-VN')}₫</td>
+                    <td className="py-4 font-bold text-right text-accent-1">{(order.total ?? order.totalPrice ?? 0).toLocaleString('vi-VN')}₫</td>
                     <td className="py-4 text-center">
                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                          order.status === 'unpaid' ? 'bg-orange-100 text-orange-600' :

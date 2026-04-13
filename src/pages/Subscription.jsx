@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import image1 from '../assets/img/section2/image1.png';
 import image3 from '../assets/img/section2/image3.png';
-import { Coffee, CalendarSync, CreditCard, ChevronRight } from 'lucide-react';
+import { Coffee, CalendarSync, CreditCard, ChevronRight, Check } from 'lucide-react';
 
 const products = [
   { id: 1, name: 'REVO Morning (Arabica Blend)', price: 99000, image: image1 },
@@ -19,9 +19,33 @@ export default function Subscription() {
   const [weight, setWeight] = useState(250); // in grams
   const [frequency, setFrequency] = useState('2weeks'); // 1week, 2weeks, 1month
 
+  const createOrder = useStore(state => state.createOrder);
+
   const handleSubscribe = () => {
-    alert(`Đã đăng ký thành công gói giao cà phê định kỳ: ${selectedProduct.name} (${weight}g) mỗi ${frequency === '1week' ? '1 tuần' : frequency === '2weeks' ? '2 tuần' : '1 tháng'}.`);
-    navigate('/');
+    // Generate a fixed price or calculate based on weight for the subscription
+    const totalPrice = (selectedProduct.price * (weight / 250)) * (frequency === '1week' ? 0.85 : frequency === '2weeks' ? 0.9 : 0.95);
+    
+    createOrder({
+      fullName: 'Subscription Customer', 
+      phone: '09xxxxxx', 
+      address: 'Đăng ký nhận định kỳ', 
+      paymentMethod: 'COD',
+      items: [
+        {
+          id: `subs-${selectedProduct.id}-${Date.now()}`,
+          name: `${selectedProduct.name} - Gói Định Kỳ ${frequency}`,
+          price: parseInt(totalPrice),
+          quantity: 1,
+          image: selectedProduct.image,
+          grindType: `${grindType.toUpperCase()} - ${weight}g/lần`
+        }
+      ],
+      totalLength: 1,
+      total: parseInt(totalPrice)
+    });
+    
+    alert(`Đã đăng ký thành công gói giao cà phê định kỳ: ${selectedProduct.name} (${weight}g). Đơn hàng đã được lưu báo cáo!`);
+    navigate('/orders');
   };
 
   return (
@@ -186,9 +210,4 @@ export default function Subscription() {
       </div>
     </div>
   );
-}
-
-// Icon component mock if needed
-function Check({ size }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
 }

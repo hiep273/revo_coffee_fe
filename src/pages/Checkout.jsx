@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
-import { Check, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -40,8 +40,7 @@ export default function Checkout() {
   };
 
   if (cart.length === 0) {
-    navigate('/shop');
-    return null;
+    return <Navigate to="/shop" replace />;
   }
 
   return (

@@ -12,7 +12,7 @@ export default function AdminOrders() {
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      (order.shippingInfo?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+      (order.shippingInfo?.name || order.fullName || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -80,8 +80,8 @@ export default function AdminOrders() {
                   <td className="px-6 py-4 font-bold text-primary">{order.id}</td>
                   <td className="px-6 py-4 text-gray-500">{new Date(order.date).toLocaleString('vi-VN')}</td>
                   <td className="px-6 py-4">
-                    <div className="font-bold">{order.shippingInfo?.name}</div>
-                    <div className="text-xs text-gray-500">{order.shippingInfo?.phone}</div>
+                    <div className="font-bold">{order.shippingInfo?.name || order.fullName || 'Khách Hàng'}</div>
+                    <div className="text-xs text-gray-500">{order.shippingInfo?.phone || order.phone || ''}</div>
                   </td>
                   <td className="px-6 py-4">
                      <div className="max-w-[200px] truncate" title={order.items.map(i => `${i.name} (x${i.quantity})`).join(', ')}>
@@ -89,7 +89,7 @@ export default function AdminOrders() {
                      </div>
                   </td>
                   <td className="px-6 py-4 font-bold text-accent-1 text-right">
-                    {order.total.toLocaleString('vi-VN')}₫
+                    {(order.total || order.totalPrice || 0).toLocaleString('vi-VN')}₫
                     <div className="text-xs text-gray-400 font-normal">{order.paymentMethod === 'vnpay' ? 'VNPAY' : 'COD'}</div>
                   </td>
                   <td className="px-6 py-4 text-center">

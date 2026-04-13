@@ -1,24 +1,13 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
-import image2 from '../assets/img/section2/image2.png';
+import { products } from '../data/products';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  // Giả lập thông tin sản phẩm chi tiết
-  const product = { 
-    id: id, 
-    name: 'REVO Everyday', 
-    price: 139000, 
-    image: image2, 
-    type: 'Blend (70% Robusta, 30% Arabica)', 
-    region: 'Đắk Lắk & Đà Lạt', 
-    process: 'Honey', 
-    roast: 'Medium Dark',
-    flavorNotes: 'Chocolate, Hạnh nhân, Caramel',
-    desc: 'Hương vị cân bằng dịu nhẹ, hậu vị ngọt kéo dài. Một sự pha trộn tinh tế hoàn hảo để bắt đầu mỗi ngày tràn đầy năng lượng.'
-  };
+  const productId = Number(id);
+  const product = products.find((item) => item.id === productId);
 
   const [quantity, setQuantity] = useState(1);
   const [grindType, setGrindType] = useState('whole'); // whole, phin, espresso, coldbrew, frenchpress
@@ -37,6 +26,28 @@ export default function ProductDetail() {
     { id: 'coldbrew', label: 'Ủ Lạnh (Cold Brew)' },
     { id: 'frenchpress', label: 'Kiểu Pháp (French Press)' },
   ];
+  const regionLabels = {
+    dalat: 'Đà Lạt',
+    daklak: 'Đắk Lắk',
+    gialai: 'Gia Lai',
+  };
+
+  if (!product) {
+    return (
+      <div className="bg-text-light min-h-screen py-12">
+        <div className="container mx-auto px-6 lg:px-12 max-w-4xl text-center">
+          <h1 className="font-montserrat font-black text-3xl text-primary mb-4">Không tìm thấy sản phẩm</h1>
+          <p className="font-nunito text-primary/70 mb-8">Sản phẩm bạn đang tìm hiện không tồn tại hoặc đã bị gỡ.</p>
+          <button
+            onClick={() => navigate('/shop')}
+            className="bg-primary text-white font-nunito font-bold py-3 px-8 rounded-full hover:bg-accent-1 transition-colors"
+          >
+            Quay lại cửa hàng
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-text-light min-h-screen py-12">
@@ -60,8 +71,8 @@ export default function ProductDetail() {
 
             {/* Spec Table */}
             <div className="grid grid-cols-2 gap-y-4 gap-x-8 mb-8 font-nunito text-sm border-t border-b border-gray-100 py-6">
-              <div><span className="text-primary/60 block mb-1">Giống cà phê</span><span className="font-bold text-primary">{product.type}</span></div>
-              <div><span className="text-primary/60 block mb-1">Vùng trồng</span><span className="font-bold text-primary">{product.region}</span></div>
+              <div><span className="text-primary/60 block mb-1">Giống cà phê</span><span className="font-bold text-primary">{product.type.replace('-', ' ')}</span></div>
+              <div><span className="text-primary/60 block mb-1">Vùng trồng</span><span className="font-bold text-primary">{regionLabels[product.region] || product.region}</span></div>
               <div><span className="text-primary/60 block mb-1">Phương pháp sơ chế</span><span className="font-bold text-primary">{product.process}</span></div>
               <div><span className="text-primary/60 block mb-1">Mức độ rang</span><span className="font-bold text-primary">{product.roast}</span></div>
               <div className="col-span-2"><span className="text-primary/60 block mb-1">Hương vị (Flavor Notes)</span><span className="font-bold text-primary">{product.flavorNotes}</span></div>
