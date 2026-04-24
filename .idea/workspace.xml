@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="bef6ce60-059a-434f-a476-3784a2d3d1d8" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/revo-coffee-react/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/revo-coffee-react/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/revo-coffee-react/src/components/Header.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/revo-coffee-react/src/components/Header.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/revo-coffee-react/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/revo-coffee-react/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/revo-coffee-react/src/pages/Orders.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/revo-coffee-react/src/pages/Orders.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/revo-coffee-react/src/pages/Subscription.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/revo-coffee-react/src/pages/Subscription.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/revo-coffee-react/src/pages/admin/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/revo-coffee-react/src/pages/admin/Dashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/revo-coffee-react/src/pages/admin/Orders.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/revo-coffee-react/src/pages/admin/Orders.jsx" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="88" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/Revo-Coffee-Website" />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="3B1AFqfqajqMWJpG9OqLqi8zCYA" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "main",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bef6ce60-059a-434f-a476-3784a2d3d1d8" name="Changes" comment="" />
+      <created>1773646101387</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1773646101387</updated>
+      <workItem from="1773646102620" duration="247000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.OperationCanceledException" breakIfHandledByOtherCode="false" displayValue="System.OperationCanceledException" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.Tasks.TaskCanceledException" breakIfHandledByOtherCode="false" displayValue="System.Threading.Tasks.TaskCanceledException" />
+          <option name="timeStamp" value="2" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
+          <option name="timeStamp" value="3" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

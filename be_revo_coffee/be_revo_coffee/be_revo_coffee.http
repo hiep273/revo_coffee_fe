@@ -1,0 +1,6 @@
+@be_revo_coffee_HostAddress = http://localhost:5083
+
+GET {{be_revo_coffee_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

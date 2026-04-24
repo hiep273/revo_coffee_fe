@@ -1,0 +1,181 @@
+services:
+  # API Gateway
+  api-gateway:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - identity-service
+      - product-service
+      - inventory-service
+      - order-service
+      - batch-service
+    networks:
+      - revo-network
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: revo_coffee
+    ports:
+      - "3307:3306"
+    networks:
+      - revo-network
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./infra/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    networks:
+      - revo-network
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: revo
+      RABBITMQ_DEFAULT_PASS: revo123
+    networks:
+      - revo-network
+
+  # Identity Service (PHP)
+  identity-service:
+    build:
+      context: ./revo-coffee-react/services/auth
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: revo_identity
+      DB_USER: root
+      DB_PASS: root
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - revo-network
+
+  # Product Catalog Service (C# .NET)
+  product-service:
+    build:
+      context: ./revo-coffee-react/services/products
+      dockerfile: Dockerfile
+    ports:
+      - "8002:80"
+    environment:
+      ASPNETCORE_URLS: http://+:80
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=revo_products;User=root;Password=root;"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - revo-network
+
+  # Inventory Service (C# .NET)
+  inventory-service:
+    build:
+      context: ./revo-coffee-react/services/inventory
+      dockerfile: Dockerfile
+    ports:
+      - "8004:80"
+    environment:
+      ASPNETCORE_URLS: http://+:80
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=revo_inventory;User=root;Password=root;"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - revo-network
+
+  # Order Service (Java Spring Boot)
+  order-service:
+    build:
+      context: ./revo-coffee-react/services/orders
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revo_orders?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - revo-network
+
+  # Batch Service (Java Spring Boot)
+  batch-service:
+    build:
+      context: ./revo-coffee-react/services/batches
+      dockerfile: Dockerfile
+    ports:
+      - "8005:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revo_batches?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - revo-network
+
+  # Customer Frontend
+  frontend:
+    build:
+      context: ./revo-coffee-react
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    networks:
+      - revo-network
+
+  # Admin Frontend
+  admin-frontend:
+    build:
+      context: ./revo-coffee-react/admin-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5174:5173"
+    networks:
+      - revo-network
+
+networks:
+  revo-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+
