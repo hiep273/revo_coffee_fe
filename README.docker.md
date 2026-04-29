@@ -1,6 +1,24 @@
-# Run with Docker
+# Revo Coffee Microservices
 
-## Start
+## Structure
+
+```text
+apps/
+  customer-web/        # React customer storefront
+  admin-web/           # React admin console
+services/
+  identity-service/    # PHP auth/users API
+  product-service/     # .NET product/catalog API
+  inventory-service/   # .NET inventory API
+  order-service/       # Spring Boot order API
+  batch-service/       # Spring Boot coffee batch/QC API
+infra/
+  mysql/init/          # database-per-service init scripts
+  nginx/nginx.conf     # API gateway routes
+legacy/                # old monolith/artifacts kept out of the active path
+```
+
+## Run
 
 From repo root:
 
@@ -10,52 +28,35 @@ docker compose up --build
 
 ## URLs
 
-- Frontend (Vite): `http://localhost:5173`
-- .NET API: `http://localhost:8080/weatherforecast`
+- API gateway: `http://localhost:8080`
+- Customer web: `http://localhost:5173`
+- Admin web: `http://localhost:5174`
+- phpMyAdmin: `http://localhost:8081`
+- RabbitMQ management: `http://localhost:15672`
 
-## Notes
+## Gateway Endpoints
 
-- The frontend container mounts `./revo-coffee-react` for live reload.
-- `.NET` HTTPS redirect is disabled in docker via `DISABLE_HTTPS_REDIRECT=true`.
+| Service | Endpoint |
+| --- | --- |
+| Identity | `POST /api/auth/register` |
+| Identity | `POST /api/auth/login` |
+| Identity | `GET /api/auth/profile` |
+| Products | `GET /api/products` |
+| Categories | `GET /api/categories` |
+| Inventory | `GET /api/inventory` |
+| Orders | `GET /api/orders` |
+| Batches | `GET /api/batches` |
 
-## Developer Quick Start
-
-Windows (PowerShell):
+## Local Development
 
 ```powershell
-# Start both services with Docker Compose
-docker compose up --build
-
-# Or run frontend locally for fast iteration
-cd revo-coffee-react
+cd apps/customer-web
 npm install
 npm run dev
-```
 
-Unix / macOS (bash):
-
-```bash
-# Start both services with Docker Compose
-docker compose up --build
-
-# Or run frontend locally for fast iteration
-cd revo-coffee-react
+cd ../../apps/admin-web
 npm install
-npm run dev
+npm run dev -- --port 5174
 ```
 
-## Verification Commands
-
-Check compose configuration and start services detached:
-
-```bash
-docker compose -f docker-compose.yml config
-docker compose -f docker-compose.yml up --build -d
-docker ps --filter "name=frontend" --filter "name=dotnet-api"
-```
-
-## Troubleshooting
-
-- If the frontend fails to start, ensure Node.js is installed and dependencies are installed in `revo-coffee-react`.
-- If the backend fails, check `be_revo_coffee/` Dockerfile and appsettings for ports and environment variables.
-
+The active backend path is `services/*`. The old `legacy/be_revo_coffee` project is retained only for reference and should not receive new microservice work.

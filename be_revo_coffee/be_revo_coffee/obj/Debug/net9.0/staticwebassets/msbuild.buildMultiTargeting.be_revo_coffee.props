@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\be_revo_coffee.props" />
-</Project>
