@@ -1,11 +1,18 @@
 services:
   # API Gateway
   api-gateway:
-    image: nginx:alpine
+    build:
+      context: ./services/api-gateway-dotnet
+      dockerfile: Dockerfile
     ports:
       - "8080:80"
-    volumes:
-      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      ASPNETCORE_URLS: http://+:80
+      IDENTITY_SERVICE_URL: http://identity-service:80
+      PRODUCT_SERVICE_URL: http://product-service:80
+      INVENTORY_SERVICE_URL: http://inventory-service:80
+      ORDER_SERVICE_URL: http://order-service:8080
+      BATCH_SERVICE_URL: http://batch-service:8080
     depends_on:
       - identity-service
       - product-service
@@ -61,36 +68,37 @@ services:
     networks:
       - revo-network
 
-  # Identity Service (PHP)
+  # Identity Service (.NET)
   identity-service:
     build:
-      context: ./services/identity-service
+      context: ./services/identity-service-dotnet
       dockerfile: Dockerfile
     ports:
-      - "8001:8001"
+      - "8001:80"
     environment:
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_NAME: revo_identity
-      DB_USER: root
-      DB_PASS: root
+      ASPNETCORE_URLS: http://+:80
+      ASPNETCORE_ENVIRONMENT: Development
+      JWT_SECRET: revo-dev-secret-change-before-production
+      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=revo_identity;User=root;Password=root;"
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - revo-network
 
-  # Product Catalog Service (C# .NET)
+  # Product Catalog Service (PHP)
   product-service:
     build:
-      context: ./services/product-service
+      context: ./services/product-catalog-service
       dockerfile: Dockerfile
     ports:
       - "8002:80"
     environment:
-      ASPNETCORE_URLS: http://+:80
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=revo_products;User=root;Password=root;"
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: revo_products
+      DB_USER: root
+      DB_PASS: root
     depends_on:
       mysql:
         condition: service_healthy

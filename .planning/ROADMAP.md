@@ -32,5 +32,13 @@ Plans:
 5. Deployment & CI
    - Add CI, build images, push to registry, staging deploy
 
+Architecture migration note
+- Active service ownership is now:
+  - API Gateway & Identity: C#/.NET
+  - Product & Catalog: PHP
+  - Order & Payment: Java/Spring Boot
+  - Inventory and Batches: kept as existing operational services
+  - Notification: deferred until order/subscription events are stable
+
 Notes
 - Each phase should produce verifiable acceptance criteria in `REQUIREMENTS.md` updates.

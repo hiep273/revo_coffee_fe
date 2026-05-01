@@ -6,11 +6,11 @@ Repository: C:/demo_web_cf
 
 Overview
 --------
-This project bootstraps the Revo Coffee web platform (React frontend + .NET backend). The workspace contains two main folders: `revo-coffee-react` (frontend) and `be_revo_coffee` (backend). This planning artifact captures high-level context to drive requirements and roadmap creation.
+This project bootstraps the Revo Coffee web platform as a microservices application. The active workspace contains React frontends under `apps/`, backend services under `services/`, and Docker/MySQL infrastructure under `infra/`.
 
 Primary goals
 - Provide a production-ready e-commerce front-end (shop, cart, checkout).
-- Maintain a .NET 9 API backend with product management and orders.
+- Maintain a microservice backend split by domain: .NET gateway/identity, PHP catalog, Java order/subscription, .NET inventory, and Java batch management.
 - Support admin pages for inventory and order management.
 - Containerize services with Docker Compose for local development and deployment.
 

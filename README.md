@@ -6,9 +6,9 @@ Revo Coffee is a microservice-based coffee shop system with separate customer an
 
 - Customer web: React + Vite
 - Admin web: React + Vite
-- API gateway: Nginx
-- Identity service: PHP + PDO
-- Product service: .NET + EF Core
+- API gateway: .NET minimal reverse proxy
+- Identity service: .NET + EF Core
+- Product service: PHP + PDO
 - Inventory service: .NET + EF Core
 - Order service: Spring Boot
 - Batch service: Spring Boot
@@ -24,17 +24,16 @@ apps/
   admin-web/           # Admin React app
 
 services/
-  identity-service/    # Auth and users
-  product-service/     # Products and categories
+  api-gateway-dotnet/  # .NET API gateway
+  identity-service-dotnet/ # Auth and users
+  product-catalog-service/ # Products and categories
   inventory-service/   # Inventory and stock movements
   order-service/       # Orders and order items
   batch-service/       # Coffee batches and quality checks
 
 infra/
   mysql/init/          # MySQL schema and seed scripts
-  nginx/nginx.conf     # API gateway config
 
-legacy/                # Old monolith/artifacts kept for reference only
 docker-compose.yml
 ```
 
@@ -65,7 +64,7 @@ After containers start, open:
 | --- | --- |
 | Customer web | `http://localhost:5173` |
 | Admin web | `http://localhost:5174` |
-| API gateway | `http://localhost:8080` |
+| API gateway (.NET) | `http://localhost:8080` |
 | phpMyAdmin | `http://localhost:8081` |
 | RabbitMQ management | `http://localhost:15672` |
 
@@ -124,13 +123,14 @@ Main routes:
 
 | Service | Endpoint |
 | --- | --- |
-| Identity | `POST /api/auth/register` |
-| Identity | `POST /api/auth/login` |
-| Identity | `GET /api/auth/profile` |
-| Products | `GET /api/products` |
-| Categories | `GET /api/categories` |
+| Identity (.NET) | `POST /api/auth/register` |
+| Identity (.NET) | `POST /api/auth/login` |
+| Identity (.NET) | `GET /api/auth/profile` |
+| Products (PHP) | `GET /api/products` |
+| Categories (PHP) | `GET /api/categories` |
 | Inventory | `GET /api/inventory` |
 | Orders | `GET /api/orders` |
+| Subscriptions | `GET /api/subscriptions` |
 | Batches | `GET /api/batches` |
 
 Example:
@@ -203,7 +203,7 @@ docker compose logs -f api-gateway
 
 ## Notes
 
-- New backend work should go under `services/*`.
+- New identity/gateway work should go under `services/identity-service-dotnet` and `services/api-gateway-dotnet`.
+- New catalog work should go under `services/product-catalog-service`.
 - New frontend work should go under `apps/customer-web` or `apps/admin-web`.
-- `legacy/` is reference-only and should not be used as the active backend path.
 - Do not commit generated folders such as `node_modules`, `dist`, `bin`, `obj`, `.gradle`, or `build`.

@@ -1,8 +1,8 @@
 # Requirements — Revo Coffee Web
 
 Scope
-- Frontend: `revo-coffee-react` (React + Vite)
-- Backend: `be_revo_coffee` (.NET 9 API)
+- Frontend: `apps/customer-web` and `apps/admin-web` (React + Vite)
+- Backend: `services/*` microservices
 - Local dev: Docker Compose
 
 Functional requirements
@@ -16,7 +16,7 @@ Functional requirements
 Non-functional requirements
 - Containerized development with `docker-compose.yml`.
 - Reasonable performance for catalog pages (<200ms API p95 locally).
-- Automated dev start: `npm install && npm run dev` for frontend; `dotnet run` for backend.
+- Automated dev start through Docker Compose; individual services can still be run with their native toolchains.
 
 Out of scope (initial)
 - External payment gateway integration (deferred).

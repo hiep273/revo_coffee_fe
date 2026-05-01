@@ -15,13 +15,13 @@ export const useAuthStore = create(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
           });
-          const data = await response.json();
+          const data = await parseJsonResponse(response);
           
           if (response.ok) {
             set({ user: data.user, token: data.access_token, isAuthenticated: true });
             return { success: true };
           }
-          return { success: false, message: data.message };
+          return { success: false, message: data.message || data.error || "Email hoặc mật khẩu không chính xác" };
         } catch (error) {
           console.error("Lỗi đăng nhập:", error);
           return { success: false, message: "Lỗi kết nối đến máy chủ" };
@@ -35,12 +35,13 @@ export const useAuthStore = create(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password }),
           });
-          const data = await response.json();
+          const data = await parseJsonResponse(response);
 
           if (response.ok) {
             return { success: true };
           }
-          return { success: false, message: data.message || "Đăng ký thất bại" };
+          const validationMessage = Array.isArray(data.errors) ? data.errors.join('. ') : null;
+          return { success: false, message: data.message || data.error || validationMessage || "Đăng ký thất bại" };
         } catch (error) {
           console.error("Lỗi đăng ký:", error);
           return { success: false, message: "Lỗi kết nối đến máy chủ" };
@@ -52,3 +53,14 @@ export const useAuthStore = create(
     { name: 'revo-auth-storage' }
   )
 );
+
+async function parseJsonResponse(response) {
+  const text = await response.text();
+  if (!text) return {};
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return {};
+  }
+}

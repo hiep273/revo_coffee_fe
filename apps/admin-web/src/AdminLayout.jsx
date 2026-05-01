@@ -5,6 +5,10 @@ import { LayoutDashboard, ShoppingCart, Package, Database, Archive, LogOut } fro
 export default function AdminLayout() {
   const location = useLocation();
   const currentPath = location.pathname;
+  const handleLogout = () => {
+    localStorage.removeItem('revo-auth-storage');
+    window.location.href = 'http://localhost:5173/login';
+  };
 
   const navItems = [
     { name: 'Tổng quan', path: '/', icon: <LayoutDashboard size={20} /> },
@@ -33,7 +37,7 @@ export default function AdminLayout() {
           })}
         </nav>
         <div className="p-4 border-t border-gray-100">
-          <button className="flex items-center justify-center gap-2 w-full py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition-colors">
+          <button onClick={handleLogout} className="flex items-center justify-center gap-2 w-full py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition-colors">
             <LogOut size={20} /> Thoát hệ thống
           </button>
         </div>

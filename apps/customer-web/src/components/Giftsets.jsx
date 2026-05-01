@@ -6,6 +6,7 @@ import giftset3Img from '../assets/img/section3/giftset3Img.png';
 import coffeeBeansIcon from '../assets/img/section3/coffeeBeansIcon.svg';
 import mountainIcon from '../assets/img/section3/mountainIcon.svg';
 import useStore from '../store/useStore';
+import { useAuthStore } from '../store/useAuthStore';
 
 const giftsets = [
   {
@@ -41,7 +42,7 @@ export default function Giftsets() {
   const navigate = useNavigate();
   const location = useLocation();
   const addToCart = useStore((state) => state.addToCart);
-  const user = useStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
 
   const handleAddGiftset = (set) => {
     if (!user) {

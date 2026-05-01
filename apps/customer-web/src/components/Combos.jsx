@@ -4,6 +4,7 @@ import combo1 from '../assets/img/section4/combo1.png';
 import combo2 from '../assets/img/section4/combo2.png';
 import combo3 from '../assets/img/section4/combo3.png';
 import useStore from '../store/useStore';
+import { useAuthStore } from '../store/useAuthStore';
 
 const combos = [
   { id: 1, name: 'COMBO 1', image: combo1, originalPrice: '145.000', discountPrice: '119.000' },
@@ -15,7 +16,7 @@ export default function Combos() {
   const navigate = useNavigate();
   const location = useLocation();
   const addToCart = useStore((state) => state.addToCart);
-  const user = useStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
 
   const handleAddCombo = (combo) => {
     if (!user) {

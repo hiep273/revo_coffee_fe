@@ -16,7 +16,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? "Server=mysql;Port=3306;Database=revo_inventory;User=root;Password=root;";
 
 builder.Services.AddDbContext<InventoryDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 46))));
 
 var app = builder.Build();
 
@@ -24,7 +24,18 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
-    db.Database.EnsureCreated();
+    for (var attempt = 1; ; attempt++)
+    {
+        try
+        {
+            db.Database.EnsureCreated();
+            break;
+        }
+        catch when (attempt < 12)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5));
+        }
+    }
 }
 
 // Configure the HTTP request pipeline.

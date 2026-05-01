@@ -20,6 +20,9 @@ public class Order {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "subscription_id")
+    private Long subscriptionId;
+
     @Column(name = "user_email")
     private String userEmail;
 
@@ -78,6 +81,9 @@ public class Order {
 
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
+
+    public Long getSubscriptionId() { return subscriptionId; }
+    public void setSubscriptionId(Long subscriptionId) { this.subscriptionId = subscriptionId; }
 
     public String getUserEmail() { return userEmail; }
     public void setUserEmail(String userEmail) { this.userEmail = userEmail; }

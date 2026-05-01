@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { Info } from 'lucide-react';
 
 export default function Checkout() {
@@ -9,7 +10,7 @@ export default function Checkout() {
   const cart = useStore((state) => state.cart);
   const clearCart = useStore((state) => state.clearCart);
   const createOrder = useStore((state) => state.createOrder);
-  const user = useStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
   
   // Tổng tiền hàng
   const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);

@@ -22,6 +22,16 @@ export default function Register() {
       return setError('Mật khẩu nhập lại không khớp!');
     }
 
+    const strongPassword = password.length >= 8
+      && /[A-Z]/.test(password)
+      && /[a-z]/.test(password)
+      && /\d/.test(password)
+      && /[^A-Za-z0-9]/.test(password);
+
+    if (!strongPassword) {
+      return setError('Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt. Ví dụ: Admin@123');
+    }
+
     setIsLoading(true);
     const result = await register(name, email, password);
     setIsLoading(false);

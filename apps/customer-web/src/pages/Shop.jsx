@@ -13,7 +13,7 @@ export default function Shop() {
     fetch('http://localhost:8080/api/products')
       .then(res => res.json())
       .then(data => {
-        setProducts(data);
+        setProducts(Array.isArray(data) ? data : (data.items || []));
         setLoading(false);
       })
       .catch(err => {

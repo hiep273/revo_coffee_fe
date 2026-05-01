@@ -118,7 +118,12 @@ const useStore = create(
       })),
     }),
     {
-      name: 'revo-coffee-storage', // Lưu vào localStorage
+      name: 'revo-coffee-storage',
+      version: 1,
+      migrate: (persistedState) => ({
+        ...persistedState,
+        cart: [],
+      }),
     }
   )
 );

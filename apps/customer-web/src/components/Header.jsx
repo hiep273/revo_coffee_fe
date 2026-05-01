@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import useStore from '../store/useStore';
+import { useAuthStore } from '../store/useAuthStore';
 import logo from '../assets/img/header/logo.svg';
 import cartIcon from '../assets/img/header/cart-icon.svg';
 import headerBg from '../assets/img/header/header-half-bg.png';
@@ -34,8 +35,8 @@ export default function Header() {
   const { t } = useTranslation();
   const isHome = location.pathname === '/';
   const cart = useStore((state) => state.cart);
-  const user = useStore((state) => state.user);
-  const logout = useStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const fromPath = location.pathname + location.search;
 
@@ -90,7 +91,7 @@ export default function Header() {
   return (
     <header className="relative w-full min-h-screen bg-accent-2 overflow-hidden">
       {/* Navigation */}
-      <nav className="absolute top-0 left-0 w-full flex items-center justify-between px-6 md:px-12 py-6 z-20">
+      <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-6 md:px-12 py-4 z-50 bg-accent-2/95 backdrop-blur border-b border-primary/10 shadow-sm">
         <div className="flex items-center gap-16">
           <Link to="/" className="transition-colors hover:text-accent-1">
             <img src={logo} alt="Revo Coffee Logo" className="h-10 md:h-12 cursor-pointer" />

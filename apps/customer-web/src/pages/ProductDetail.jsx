@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -29,7 +30,7 @@ export default function ProductDetail() {
   }, [id]);
   
   const addToCart = useStore((state) => state.addToCart);
-  const user = useStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
 
   const handleAddToCart = () => {
     if (!user) {
