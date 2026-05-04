@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { History, Plus, RefreshCw, Trash2 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8080';
@@ -63,7 +64,7 @@ export default function Batches() {
     });
 
     if (!response.ok) {
-      alert('Tạo lô rang thất bại.');
+      toast.error('Tạo lô rang thất bại.');
       return;
     }
 
@@ -79,7 +80,7 @@ export default function Batches() {
     });
 
     if (!response.ok) {
-      alert('Cập nhật trạng thái thất bại.');
+      toast.error('Cập nhật trạng thái thất bại.');
       return;
     }
 
@@ -90,7 +91,7 @@ export default function Batches() {
     if (!window.confirm(`Xóa lô ${batch.batchCode}?`)) return;
     const response = await fetch(`${API_BASE}/api/batches/${batch.id}`, { method: 'DELETE' });
     if (!response.ok) {
-      alert('Xóa lô rang thất bại.');
+      toast.error('Xóa lô rang thất bại.');
       return;
     }
     await loadData();

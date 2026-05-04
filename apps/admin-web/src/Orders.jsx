@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { RefreshCw, Search } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8080';
@@ -41,7 +42,7 @@ export default function Orders() {
     });
 
     if (!response.ok) {
-      alert('Cập nhật trạng thái thất bại.');
+      toast.error('Cập nhật trạng thái thất bại.');
       return;
     }
 

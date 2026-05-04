@@ -7,14 +7,14 @@ apps/
   customer-web/        # React customer storefront
   admin-web/           # React admin console
 services/
-  identity-service/    # PHP auth/users API
-  product-service/     # .NET product/catalog API
+  api-gateway-dotnet/  # .NET YARP API gateway
+  identity-service-dotnet/ # .NET auth/users API
+  product-catalog-service/ # PHP product/catalog API
   inventory-service/   # .NET inventory API
   order-service/       # Spring Boot order API
   batch-service/       # Spring Boot coffee batch/QC API
 infra/
   mysql/init/          # database-per-service init scripts
-  nginx/nginx.conf     # API gateway routes
 legacy/                # old monolith/artifacts kept out of the active path
 ```
 

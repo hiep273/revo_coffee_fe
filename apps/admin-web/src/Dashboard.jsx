@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { DollarSign, Package, ShoppingBag, Users } from 'lucide-react';
+import { useAdminAuthStore } from './useAdminAuthStore';
 
 const API_BASE = 'http://localhost:8080';
 
@@ -7,18 +8,20 @@ export default function Dashboard() {
   const [orders, setOrders] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [users, setUsers] = useState([]);
+  const token = useAdminAuthStore((state) => state.token);
 
   useEffect(() => {
+    const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
     Promise.all([
       fetch(`${API_BASE}/api/orders`).then((res) => res.json()).catch(() => []),
       fetch(`${API_BASE}/api/inventory`).then((res) => res.json()).catch(() => ({ items: [] })),
-      fetch(`${API_BASE}/api/auth/users`).then((res) => res.ok ? res.json() : { items: [] }).catch(() => ({ items: [] })),
+      fetch(`${API_BASE}/api/auth/users`, { headers: authHeaders }).then((res) => res.ok ? res.json() : { items: [] }).catch(() => ({ items: [] })),
     ]).then(([orderData, inventoryData, userData]) => {
       setOrders(Array.isArray(orderData) ? orderData : orderData.items || []);
       setInventory(Array.isArray(inventoryData) ? inventoryData : inventoryData.items || []);
       setUsers(Array.isArray(userData) ? userData : userData.items || []);
     });
-  }, []);
+  }, [token]);
 
   const totalRevenue = orders.reduce((acc, order) => {
     if (order.status === 'delivered' || order.status === 'shipped') {

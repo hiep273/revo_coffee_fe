@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Edit2, Plus, RefreshCw, Trash2 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8080';
@@ -67,7 +68,7 @@ export default function Products() {
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
-      alert(data.error || 'Lưu sản phẩm thất bại.');
+      toast.error(data.error || 'Lưu sản phẩm thất bại.');
       return;
     }
 
@@ -80,7 +81,7 @@ export default function Products() {
 
     const response = await fetch(`${API_BASE}/api/products/${product.id}`, { method: 'DELETE' });
     if (!response.ok) {
-      alert('Xóa sản phẩm thất bại.');
+      toast.error('Xóa sản phẩm thất bại.');
       return;
     }
 

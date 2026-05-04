@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/useAuthStore';
 import logo from '../assets/img/header/logo.svg';
 
@@ -37,7 +38,7 @@ export default function Register() {
     setIsLoading(false);
 
     if (result.success) {
-      alert('Đăng ký thành công! Vui lòng đăng nhập.');
+      toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
       navigate('/login');
     } else {
       setError(result.message || 'Đăng ký thất bại, vui lòng thử lại.');

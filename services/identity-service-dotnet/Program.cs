@@ -14,6 +14,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<IdentityDbContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 46))));
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
@@ -37,6 +41,8 @@ using (var scope = app.Services.CreateScope())
             await Task.Delay(TimeSpan.FromSeconds(5));
         }
     }
+
+    await SeedAdminUser(db);
 }
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "identity-service-dotnet" }));
@@ -77,7 +83,7 @@ app.MapPost("/api/auth/register", async (RegisterRequest request, IdentityDbCont
 
 app.MapPost("/api/auth/login", async (LoginRequest request, IdentityDbContext db, IConfiguration configuration) =>
 {
-    var email = request.Email.Trim().ToLowerInvariant();
+    var email = NormalizeLoginIdentifier(request.Email);
     var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
 
     if (user is null || !Passwords.Verify(request.Password, user.PasswordHash))
@@ -151,6 +157,40 @@ static List<string> ValidateRegister(RegisterRequest request)
         errors.Add("Password must be at least 8 characters and include uppercase, lowercase, number, and special character");
     }
     return errors;
+}
+
+static string NormalizeLoginIdentifier(string value)
+{
+    var normalized = value.Trim().ToLowerInvariant();
+    return normalized == "admin" ? "admin@revo.coffee" : normalized;
+}
+
+static async Task SeedAdminUser(IdentityDbContext db)
+{
+    const string adminEmail = "admin@revo.coffee";
+    const string adminPassword = "@admi123";
+
+    var admin = await db.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);
+    if (admin is null)
+    {
+        db.Users.Add(new User
+        {
+            FullName = "Admin Revo",
+            Email = adminEmail,
+            PasswordHash = Passwords.Hash(adminPassword),
+            Role = UserRole.admin,
+            LoyaltyPoints = 0,
+            CreatedAt = DateTime.UtcNow
+        });
+    }
+    else
+    {
+        admin.FullName = string.IsNullOrWhiteSpace(admin.FullName) ? "Admin Revo" : admin.FullName;
+        admin.PasswordHash = Passwords.Hash(adminPassword);
+        admin.Role = UserRole.admin;
+    }
+
+    await db.SaveChangesAsync();
 }
 
 public sealed record RegisterRequest(

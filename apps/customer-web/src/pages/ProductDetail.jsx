@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import useStore from '../store/useStore';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -34,12 +35,12 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     if (!user) {
-      alert('Vui lòng đăng nhập để mua hàng.');
+      toast.error('Vui lòng đăng nhập để mua hàng.');
       navigate('/login', { state: { from: location.pathname + location.search } });
       return;
     }
     addToCart(product, quantity, grindType);
-    alert(`Đã thêm ${quantity} x ${product.name} (Kiểu xay: ${grindType}) vào giỏ hàng`);
+    toast.success(`Đã thêm ${quantity} x ${product.name} (Kiểu xay: ${grindType}) vào giỏ hàng`);
   };
 
   const grindOptions = [

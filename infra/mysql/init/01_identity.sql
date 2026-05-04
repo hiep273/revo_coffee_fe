@@ -24,9 +24,10 @@ CREATE TABLE IF NOT EXISTS addresses (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Seeded accounts use password: password
+-- Seeded admin account: admin / @admi123
+-- Seeded customer accounts use password: password
 INSERT INTO users (full_name, email, password_hash, role, loyalty_points, phone, address) VALUES
-('Admin Revo', 'admin@revo.coffee', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 0, '0901234567', '123 Coffee St, District 1, HCMC'),
+('Admin Revo', 'admin@revo.coffee', 'pbkdf2$woyuFqMl0kdc3r1lwbu2Cw==$l4aRi7VhVjE2xaXLr9MIICCim3IoKHTEzlix0Y3m07k=', 'admin', 0, '0901234567', '123 Coffee St, District 1, HCMC'),
 ('Nguyen Van A', 'customer1@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer', 24, '0909876543', '456 Bean Rd, District 3, HCMC'),
 ('Tran Thi B', 'customer2@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer', 12, '0912345678', '789 Roast Ave, District 5, HCMC'),
 ('Le Van C', 'customer3@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer', 8, '0923456789', '321 Brew Blvd, District 7, HCMC');

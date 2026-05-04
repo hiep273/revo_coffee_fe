@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import giftset1Img from '../assets/img/section3/giftset1Img.png';
 import giftset2Img from '../assets/img/section3/giftset2Img.png';
 import giftset3Img from '../assets/img/section3/giftset3Img.png';
@@ -46,7 +47,7 @@ export default function Giftsets() {
 
   const handleAddGiftset = (set) => {
     if (!user) {
-      alert('Vui lòng đăng nhập để mua hàng.');
+      toast.error('Vui lòng đăng nhập để mua hàng.');
       navigate('/login', { state: { from: location.pathname + location.search } });
       return;
     }
@@ -57,7 +58,7 @@ export default function Giftsets() {
       image: set.image,
       grindType: 'Hộp Quà'
     }, 1, 'Hộp Quà');
-    alert(`Đã thêm ${set.name} vào giỏ hàng!`);
+    toast.success(`Đã thêm ${set.name} vào giỏ hàng!`);
   };
 
   return (

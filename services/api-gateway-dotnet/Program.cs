@@ -1,4 +1,4 @@
-using System.Net.Http.Headers;
+using Yarp.ReverseProxy.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,92 +7,87 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
-builder.Services.AddHttpClient();
+
+builder.Services.AddReverseProxy()
+    .LoadFromMemory(CreateRoutes(), CreateClusters());
 
 var app = builder.Build();
 
 app.UseCors();
 
-var routes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-{
-    ["/api/auth"] = Environment.GetEnvironmentVariable("IDENTITY_SERVICE_URL") ?? "http://identity-service:80",
-    ["/api/products"] = Environment.GetEnvironmentVariable("PRODUCT_SERVICE_URL") ?? "http://product-service:80",
-    ["/api/categories"] = Environment.GetEnvironmentVariable("PRODUCT_SERVICE_URL") ?? "http://product-service:80",
-    ["/api/inventory"] = Environment.GetEnvironmentVariable("INVENTORY_SERVICE_URL") ?? "http://inventory-service:80",
-    ["/api/stockmovements"] = Environment.GetEnvironmentVariable("INVENTORY_SERVICE_URL") ?? "http://inventory-service:80",
-    ["/api/orders"] = Environment.GetEnvironmentVariable("ORDER_SERVICE_URL") ?? "http://order-service:8080",
-    ["/api/subscriptions"] = Environment.GetEnvironmentVariable("ORDER_SERVICE_URL") ?? "http://order-service:8080",
-    ["/api/batches"] = Environment.GetEnvironmentVariable("BATCH_SERVICE_URL") ?? "http://batch-service:8080"
-};
-
 app.MapGet("/health", () => Results.Ok(new { status = "up", service = "api-gateway-dotnet" }));
-
-app.Map("/{**path}", async (HttpContext context, IHttpClientFactory clientFactory) =>
-{
-    if (HttpMethods.IsOptions(context.Request.Method))
-    {
-        return Results.NoContent();
-    }
-
-    var requestPath = context.Request.Path.Value ?? "/";
-    var route = routes
-        .OrderByDescending(r => r.Key.Length)
-        .FirstOrDefault(r => requestPath.StartsWith(r.Key, StringComparison.OrdinalIgnoreCase));
-
-    if (route.Key is null)
-    {
-        return Results.NotFound(new { error = "Not Found", message = "Invalid API endpoint" });
-    }
-
-    var targetUri = new UriBuilder(route.Value)
-    {
-        Path = requestPath,
-        Query = context.Request.QueryString.HasValue
-            ? context.Request.QueryString.Value![1..]
-            : string.Empty
-    }.Uri;
-
-    using var requestMessage = new HttpRequestMessage(new HttpMethod(context.Request.Method), targetUri);
-
-    foreach (var header in context.Request.Headers)
-    {
-        if (header.Key.Equals("Host", StringComparison.OrdinalIgnoreCase))
-        {
-            continue;
-        }
-
-        if (!requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray()))
-        {
-            requestMessage.Content ??= new StreamContent(context.Request.Body);
-            requestMessage.Content.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
-        }
-    }
-
-    if (context.Request.ContentLength > 0 && requestMessage.Content is null)
-    {
-        requestMessage.Content = new StreamContent(context.Request.Body);
-        if (!string.IsNullOrWhiteSpace(context.Request.ContentType))
-        {
-            requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(context.Request.ContentType);
-        }
-    }
-
-    var client = clientFactory.CreateClient();
-    using var response = await client.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, context.RequestAborted);
-
-    context.Response.StatusCode = (int)response.StatusCode;
-    foreach (var header in response.Headers)
-    {
-        context.Response.Headers[header.Key] = header.Value.ToArray();
-    }
-    foreach (var header in response.Content.Headers)
-    {
-        context.Response.Headers[header.Key] = header.Value.ToArray();
-    }
-
-    context.Response.Headers.Remove("transfer-encoding");
-    await response.Content.CopyToAsync(context.Response.Body, context.RequestAborted);
-    return Results.Empty;
-});
+app.MapReverseProxy();
 
 app.Run();
+
+static IReadOnlyList<RouteConfig> CreateRoutes()
+{
+    var routes = new List<RouteConfig>();
+
+    AddRoutePair(routes, "identity-auth", "/api/auth", "identity");
+    AddRoutePair(routes, "products", "/api/products", "products");
+    AddRoutePair(routes, "categories", "/api/categories", "products");
+    AddRoutePair(routes, "inventory", "/api/inventory", "inventory");
+    AddRoutePair(routes, "stock-movements", "/api/stockmovements", "inventory");
+    AddRoutePair(routes, "orders", "/api/orders", "orders");
+    AddRoutePair(routes, "subscriptions", "/api/subscriptions", "orders");
+    AddRoutePair(routes, "batches", "/api/batches", "batches");
+
+    return routes;
+}
+
+static IReadOnlyList<ClusterConfig> CreateClusters()
+{
+    return
+    [
+        CreateCluster("identity", GetServiceUrl("IDENTITY_SERVICE_URL", "http://identity-service:80")),
+        CreateCluster("products", GetServiceUrl("PRODUCT_SERVICE_URL", "http://product-service:80")),
+        CreateCluster("inventory", GetServiceUrl("INVENTORY_SERVICE_URL", "http://inventory-service:80")),
+        CreateCluster("orders", GetServiceUrl("ORDER_SERVICE_URL", "http://order-service:8080")),
+        CreateCluster("batches", GetServiceUrl("BATCH_SERVICE_URL", "http://batch-service:8080"))
+    ];
+}
+
+static RouteConfig CreateRoute(string routeId, string path, string clusterId)
+{
+    return new RouteConfig
+    {
+        RouteId = routeId,
+        ClusterId = clusterId,
+        Match = new RouteMatch
+        {
+            Path = path
+        }
+    };
+}
+
+static void AddRoutePair(List<RouteConfig> routes, string routeId, string pathPrefix, string clusterId)
+{
+    routes.Add(CreateRoute(routeId, pathPrefix, clusterId));
+    routes.Add(CreateRoute($"{routeId}-catch-all", $"{pathPrefix}/{{**catch-all}}", clusterId));
+}
+
+static ClusterConfig CreateCluster(string clusterId, string address)
+{
+    return new ClusterConfig
+    {
+        ClusterId = clusterId,
+        Destinations = new Dictionary<string, DestinationConfig>
+        {
+            [clusterId] = new()
+            {
+                Address = EnsureTrailingSlash(address)
+            }
+        }
+    };
+}
+
+static string GetServiceUrl(string environmentVariable, string fallback)
+{
+    return Environment.GetEnvironmentVariable(environmentVariable) ?? fallback;
+}
+
+static string EnsureTrailingSlash(string value)
+{
+    return value.EndsWith('/') ? value : $"{value}/";
+}

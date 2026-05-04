@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import combo1 from '../assets/img/section4/combo1.png';
 import combo2 from '../assets/img/section4/combo2.png';
 import combo3 from '../assets/img/section4/combo3.png';
@@ -20,7 +21,7 @@ export default function Combos() {
 
   const handleAddCombo = (combo) => {
     if (!user) {
-      alert('Vui lòng đăng nhập để mua hàng.');
+      toast.error('Vui lòng đăng nhập để mua hàng.');
       navigate('/login', { state: { from: location.pathname + location.search } });
       return;
     }
@@ -32,7 +33,7 @@ export default function Combos() {
       image: combo.image,
       grindType: 'Combo Gói'
     }, 1, 'Combo Gói');
-    alert(`Đã thêm ${combo.name} vào giỏ hàng!`);
+    toast.success(`Đã thêm ${combo.name} vào giỏ hàng!`);
   };
 
   return (

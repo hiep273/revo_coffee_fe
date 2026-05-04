@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Archive, Plus, RefreshCw, X } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8080';
@@ -40,7 +41,7 @@ export default function Inventory() {
     });
 
     if (!response.ok) {
-      alert('Nhập kho thất bại.');
+      toast.error('Nhập kho thất bại.');
       return;
     }
 

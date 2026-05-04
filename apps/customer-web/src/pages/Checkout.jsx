@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import useStore from '../store/useStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { Info } from 'lucide-react';
@@ -40,10 +41,10 @@ export default function Checkout() {
       await createOrder(newOrder);
       clearCart();
       
-      alert('Đặt hàng thành công! Đang chuyển đến trang Quản lý đơn hàng...');
+      toast.success('Đặt hàng thành công! Đang chuyển đến trang Quản lý đơn hàng...');
       navigate('/orders');
     } catch (err) {
-      alert('Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại sau.');
+      toast.error('Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại sau.');
     }
   };
 

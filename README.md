@@ -6,7 +6,7 @@ Revo Coffee is a microservice-based coffee shop system with separate customer an
 
 - Customer web: React + Vite
 - Admin web: React + Vite
-- API gateway: .NET minimal reverse proxy
+- API gateway: .NET + YARP reverse proxy
 - Identity service: .NET + EF Core
 - Product service: PHP + PDO
 - Inventory service: .NET + EF Core
@@ -24,7 +24,7 @@ apps/
   admin-web/           # Admin React app
 
 services/
-  api-gateway-dotnet/  # .NET API gateway
+  api-gateway-dotnet/  # .NET YARP API gateway
   identity-service-dotnet/ # Auth and users
   product-catalog-service/ # Products and categories
   inventory-service/   # Inventory and stock movements
@@ -118,6 +118,8 @@ All external API calls should go through:
 ```text
 http://localhost:8080
 ```
+
+The gateway is implemented with YARP (`Yarp.ReverseProxy`) in `services/api-gateway-dotnet`.
 
 Main routes:
 
