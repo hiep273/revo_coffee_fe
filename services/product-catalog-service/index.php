@@ -40,9 +40,7 @@ function handle_categories(PDO $pdo, string $method): void
 function handle_products(PDO $pdo, string $method, ?string $id): void
 {
     if ($method === 'GET' && $id === null) {
-        $stmt = $pdo->query(product_select_sql() . ' WHERE p.is_active = TRUE ORDER BY p.created_at DESC');
-        $items = array_map('shape_product', $stmt->fetchAll());
-        json_response(['items' => $items, 'total' => count($items)]);
+        json_response(list_products($pdo));
     }
 
     if ($method === 'GET' && $id !== null) {
@@ -124,6 +122,156 @@ function handle_products(PDO $pdo, string $method, ?string $id): void
     }
 
     json_response(['error' => 'Method not allowed'], 405);
+}
+
+function list_products(PDO $pdo): array
+{
+    $where = ['p.is_active = TRUE'];
+    $params = [];
+
+    $search = trim((string)($_GET['search'] ?? ''));
+    if ($search !== '') {
+        $where[] = '(p.name LIKE ?
+            OR p.description LIKE ?
+            OR p.type LIKE ?
+            OR p.region LIKE ?
+            OR p.roast_level LIKE ?
+            OR p.flavor_notes LIKE ?
+            OR COALESCE(p.processing_method, p.process_method) LIKE ?
+            OR c.name LIKE ?)';
+        $searchPattern = '%' . $search . '%';
+        array_push(
+            $params,
+            $searchPattern,
+            $searchPattern,
+            $searchPattern,
+            $searchPattern,
+            $searchPattern,
+            $searchPattern,
+            $searchPattern,
+            $searchPattern
+        );
+    }
+
+    $searchMinPrice = trim((string)($_GET['searchMinPrice'] ?? ''));
+    $searchMaxPrice = trim((string)($_GET['searchMaxPrice'] ?? ''));
+    if ($searchMinPrice !== '' && !is_numeric($searchMinPrice)) {
+        json_response(['error' => 'Search minimum price must be numeric'], 400);
+    }
+    if ($searchMaxPrice !== '' && !is_numeric($searchMaxPrice)) {
+        json_response(['error' => 'Search maximum price must be numeric'], 400);
+    }
+    if ($searchMinPrice !== '' && $searchMaxPrice !== '' && (float)$searchMinPrice > (float)$searchMaxPrice) {
+        json_response(['error' => 'Search minimum price cannot be greater than search maximum price'], 400);
+    }
+    if ($searchMinPrice !== '') {
+        $where[] = 'p.price >= ?';
+        $params[] = $searchMinPrice;
+    }
+    if ($searchMaxPrice !== '') {
+        $where[] = 'p.price <= ?';
+        $params[] = $searchMaxPrice;
+    }
+
+    $filterGroup = strtolower(trim((string)($_GET['filterGroup'] ?? 'none')));
+    if (!in_array($filterGroup, ['none', 'price', 'type', 'region'], true)) {
+        json_response(['error' => 'Filter group is not supported'], 400);
+    }
+
+    if ($filterGroup === 'price') {
+        $minPrice = trim((string)($_GET['minPrice'] ?? ''));
+        $maxPrice = trim((string)($_GET['maxPrice'] ?? ''));
+
+        if ($minPrice !== '' && !is_numeric($minPrice)) {
+            json_response(['error' => 'Minimum price must be numeric'], 400);
+        }
+        if ($maxPrice !== '' && !is_numeric($maxPrice)) {
+            json_response(['error' => 'Maximum price must be numeric'], 400);
+        }
+        if ($minPrice !== '' && $maxPrice !== '' && (float)$minPrice > (float)$maxPrice) {
+            json_response(['error' => 'Minimum price cannot be greater than maximum price'], 400);
+        }
+
+        if ($minPrice !== '') {
+            $where[] = 'p.price >= ?';
+            $params[] = $minPrice;
+        }
+        if ($maxPrice !== '') {
+            $where[] = 'p.price <= ?';
+            $params[] = $maxPrice;
+        }
+    }
+
+    if ($filterGroup === 'type') {
+        $type = trim((string)($_GET['type'] ?? ''));
+        if ($type !== '' && $type !== 'all') {
+            $where[] = 'p.type = ?';
+            $params[] = $type;
+        }
+    }
+
+    if ($filterGroup === 'region') {
+        $regions = array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string)($_GET['regions'] ?? ''))
+        )));
+
+        if (count($regions) > 0) {
+            $placeholders = implode(', ', array_fill(0, count($regions), '?'));
+            $where[] = "p.region IN ({$placeholders})";
+            array_push($params, ...$regions);
+        }
+    }
+
+    $paginationRequested = isset($_GET['page']) || isset($_GET['limit']);
+    $page = (int)($_GET['page'] ?? 1);
+    $limit = (int)($_GET['limit'] ?? 9);
+    if ($page < 1) {
+        $page = 1;
+    }
+    if ($limit < 1) {
+        $limit = 9;
+    }
+    if ($limit > 100) {
+        $limit = 100;
+    }
+
+    $whereSql = implode(' AND ', $where);
+    $countStmt = $pdo->prepare("SELECT COUNT(*) AS total FROM products p LEFT JOIN categories c ON c.id = p.category_id WHERE {$whereSql}");
+    $countStmt->execute($params);
+    $total = (int)($countStmt->fetch()['total'] ?? 0);
+
+    if (!$paginationRequested) {
+        $sql = product_select_sql() . " WHERE {$whereSql} ORDER BY p.created_at DESC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return [
+            'items' => array_map('shape_product', $stmt->fetchAll()),
+            'page' => 1,
+            'limit' => $total,
+            'total' => $total,
+            'totalPages' => 1,
+        ];
+    }
+
+    $totalPages = max(1, (int)ceil($total / $limit));
+    if ($page > $totalPages) {
+        $page = $totalPages;
+    }
+
+    $offset = ($page - 1) * $limit;
+    $sql = product_select_sql() . " WHERE {$whereSql} ORDER BY p.created_at DESC LIMIT {$limit} OFFSET {$offset}";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+
+    return [
+        'items' => array_map('shape_product', $stmt->fetchAll()),
+        'page' => $page,
+        'limit' => $limit,
+        'total' => $total,
+        'totalPages' => $totalPages,
+    ];
 }
 
 function validate_product(array $data): void

@@ -40,6 +40,8 @@ public class OrderService {
     }
 
     public Order createOrder(Order order) {
+        validateNewOrder(order);
+
         order.setOrderCode(generateOrderCode());
         order.setStatus(Order.OrderStatus.pending);
         order.setPaymentStatus(Order.PaymentStatus.pending);
@@ -74,6 +76,27 @@ public class OrderService {
 
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
+    }
+
+    private void validateNewOrder(Order order) {
+        if (order.getUserId() == null) {
+            throw new IllegalArgumentException("userId is required");
+        }
+        if (order.getItems() == null || order.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Order must contain at least one item");
+        }
+
+        for (OrderItem item : order.getItems()) {
+            if (item.getProductId() == null || item.getProductId().isBlank()) {
+                throw new IllegalArgumentException("items.productId is required");
+            }
+            if (item.getQuantity() == null || item.getQuantity() <= 0) {
+                throw new IllegalArgumentException("items.quantity must be greater than zero");
+            }
+            if (item.getUnitPrice() == null || item.getUnitPrice().compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("items.unitPrice must be zero or greater");
+            }
+        }
     }
 
     private String generateOrderCode() {

@@ -12,6 +12,7 @@ export default function Checkout() {
   const clearCart = useStore((state) => state.clearCart);
   const createOrder = useStore((state) => state.createOrder);
   const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
   
   // Tổng tiền hàng
   const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -26,19 +27,24 @@ export default function Checkout() {
   const handleOrder = async (e) => {
     e.preventDefault();
     
-    // Tạo data order
     const newOrder = {
-      customerId: user.id,
-      items: [...cart],
-      totalAmount: subtotal + shippingFee,
-      shippingInfo: { ...form },
+      userId: user.id,
+      userEmail: user.email,
+      userName: user.name || user.fullName,
+      shippingAddress: form.address,
+      shippingPhone: form.phone,
+      notes: form.note,
       paymentMethod,
-      // Trạng thái: nếu chọn VNPAY coi như "Chờ thanh toán" (unpaid), COD coi như "Đang xử lý/giao" (processing)
-      status: paymentMethod === 'vnpay' ? 'unpaid' : 'processing'
+      items: cart.map((item) => ({
+        productId: item.id,
+        productName: item.name,
+        quantity: item.quantity,
+        unitPrice: item.price,
+      })),
     };
     
     try {
-      await createOrder(newOrder);
+      await createOrder(newOrder, token);
       clearCart();
       
       toast.success('Đặt hàng thành công! Đang chuyển đến trang Quản lý đơn hàng...');

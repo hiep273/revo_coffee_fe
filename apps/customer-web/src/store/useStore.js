@@ -79,14 +79,22 @@ const useStore = create(
       
       clearCart: () => set({ cart: [] }),
 
-      createOrder: async (orderData) => {
+      createOrder: async (orderData, token) => {
         try {
           const response = await fetch('http://localhost:8080/api/orders', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
             body: JSON.stringify(orderData),
           });
-          const data = await response.json();
+          const data = await parseJsonResponse(response);
+
+          if (!response.ok) {
+            throw new Error(data.message || data.error || 'Không thể tạo đơn hàng');
+          }
+
           set((state) => ({ 
             orders: [data, ...state.orders]
           }));
@@ -127,5 +135,16 @@ const useStore = create(
     }
   )
 );
+
+async function parseJsonResponse(response) {
+  const text = await response.text();
+  if (!text) return {};
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return {};
+  }
+}
 
 export default useStore;
